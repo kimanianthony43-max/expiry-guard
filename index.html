@@ -1,0 +1,440 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ExpiryGuard - Works Version</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#0f1f16;color:#fff;padding:14px}
+h1{font-size:22px;margin:4px 0} .sub{color:#b7c9bd;font-size:13px}
+.card{background:#1b2f24;border:1px solid #2e4a38;border-radius:16px;padding:14px;margin:12px 0}
+label{display:block;font-size:12px;letter-spacing:.08em;color:#9fb3a6;margin:14px 0 6px}
+input,textarea{width:100%;background:#0f1f16;color:#fff;border:1px solid #3a5a48;border-radius:12px;padding:14px;font-size:16px}
+textarea{min-height:70px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.dd{position:relative}.ddbtn{width:100%;background:#0f1f16;color:#fff;border:1px solid #3a5a48;border-radius:12px;padding:14px;font-size:16px;text-align:left;cursor:pointer}
+.ddlist{display:none;position:absolute;left:0;right:0;top:100%;background:#fff;color:#111;border-radius:12px;max-height:220px;overflow:auto;z-index:99;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.ddlist button{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid #eee;padding:15px;font-size:16px;cursor:pointer}
+.ddlist button:active{background:#d7f0df}
+.err{background:#ff3b30;padding:12px;border-radius:12px;display:none;font-weight:700}
+.ok{background:#22c55e;color:#06210f;padding:12px;border-radius:12px;display:none;font-weight:700}
+.save{width:100%;background:#22c55e;color:#06210f;border:0;border-radius:14px;padding:16px;font-size:18px;font-weight:800;margin-top:16px}
+.item{background:#fff;color:#111;border-radius:14px;padding:12px;margin:10px 0}
+.badge{display:inline-block;padding:5px 10px;border-radius:20px;font-weight:800;font-size:12px}.red{background:#ffdddd;color:#a00}.amber{background:#ffe8b3}.green{background:#d6f5dd}
+.small{font-size:13px;color:#444}.btn{border:1px solid #ccc;background:#fff;border-radius:10px;padding:10px 12px;margin:4px 4px 0 0;font-weight:700}
+.wa{background:#25D366;color:#fff;border:0}
+</style><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#22c55e"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ExpiryGuard"></head><body>
+<div style="background:#111;color:#fff;padding:10px;border-radius:12px;margin-bottom:12px;display:flex;gap:8px;align-items:center">
+<span style="font-size:18px">🌍</span><b id="langLabel">Language / اللغة</b>
+<select id="langSel" onchange="setLang(this.value)" style="flex:1;padding:10px;border-radius:10px;font-size:16px">
+<option value="en">English</option>
+<option value="ar">العربية - Arabic</option>
+<option value="hi">हिन्दी - Hindi (Indian)</option>
+<option value="bn">বাংলা - Bengali / Bangla</option>
+<option value="ne">नेपाली - Nepali</option>
+<option value="de">Deutsch - German</option>
+<option value="fr">Français - French</option>
+<option value="sw">Kiswahili - Swahili</option>
+<option value="lg">Luganda - Luganda</option>
+<option value="so">Soomaali - Somali</option>
+<option value="am">አማርኛ - Amharic</option>
+<option value="ur">اردو - Urdu</option>
+<option value="es">Español - Spanish</option>
+<option value="pt">Português - Portuguese</option>
+<option value="ta">தமிழ் - Tamil</option>
+<option value="yo">Yorùbá - Yoruba</option>
+</select>
+</div>
+
+<h1>✅ ExpiryGuard</h1><div class="sub">Expiry monitoring for your shop.</div>
+<div id="err" class="err"></div><div id="ok" class="ok"></div>
+<div class="card">
+
+<div style="background:#fff;color:#111;border-radius:12px;padding:12px;margin-bottom:12px">
+<b>♻️ Re-use Saved Product / Supplier</b><div class="small" style="color:#444">Saved once = never type again. Pick a product below and it auto-fills Supplier, WhatsApp, Category, SKU.</div>
+<label style="color:#111">PICK SAVED PRODUCT ▼</label><div class="dd"><button class="ddbtn" id="pickProdBtn" onclick="toggle('pickProdList',event)" style="background:#fff;color:#111">-- Pick a saved product -- ▼</button><div class="ddlist" id="pickProdList"></div></div>
+<label style="color:#111">PICK SAVED SUPPLIER ▼</label><div class="dd"><button class="ddbtn" id="pickSupBtn" onclick="toggle('pickSupList',event)" style="background:#fff;color:#111">-- Pick a saved supplier -- ▼</button><div class="ddlist" id="pickSupList"></div></div>
+<div class="small" style="color:#444" id="reuseMsg">No saved products yet - save JUMBO once, then it will appear here.</div>
+</div>
+
+<div style="background:#fff;color:#111;border-radius:12px;padding:12px;margin-bottom:12px;border:2px solid #111">
+<b>🛡️ STORE REPORT - STAFF INFO</b><div class="small" style="color:#444">Fill once per shift. It will appear on every Store Report.</div>
+<label style="color:#111">STORE NAME / BRANCH</label><input id="storeName" placeholder="e.g. Store name - Branch" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ccc">
+<label style="color:#111">STAFF NAME</label><input id="officerName" placeholder="e.g. Your name - Staff / Merchandiser" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ccc">
+<label style="color:#111">AISLE / SHELF / SECTION (for this product)</label><input id="itemLocation" placeholder="e.g. Aisle 3 - Shelf 2 - Bakery" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ccc">
+</div>
+<label>PRODUCT NAME *</label><input id="pname" placeholder="e.g. Milk, Bread, Croissant" value="">
+<label>SUPPLIER NAME / NO.</label><input id="sup" placeholder="e.g. Supplier name or code" value="">
+<label>SUPPLIER WHATSAPP</label><input id="phone" placeholder="e.g. +966..., +91..., +880..." value="">
+<label>CATEGORY</label><div class="dd"><button class="ddbtn" id="catBtn" onclick="toggle('catList',event)">Bakery ▼</button><div class="ddlist" id="catList"></div></div>
+<label>PRODUCTION DATE</label><div class="row">
+<div class="dd"><button class="ddbtn" id="pdBtn" onclick="toggle('pdList',event)">Day ▼</button><div class="ddlist" id="pdList"></div></div>
+<div class="dd"><button class="ddbtn" id="pmBtn" onclick="toggle('pmList',event)">Month ▼</button><div class="ddlist" id="pmList"></div></div>
+<div class="dd"><button class="ddbtn" id="pyBtn" onclick="toggle('pyList',event)">Year ▼</button><div class="ddlist" id="pyList"></div></div></div>
+<div class="sub" id="pSel">Selected Production: not set yet</div>
+<label>EXPIRY DATE</label><div class="row">
+<div class="dd"><button class="ddbtn" id="edBtn" onclick="toggle('edList',event)">Day ▼</button><div class="ddlist" id="edList"></div></div>
+<div class="dd"><button class="ddbtn" id="emBtn" onclick="toggle('emList',event)">Month ▼</button><div class="ddlist" id="emList"></div></div>
+<div class="dd"><button class="ddbtn" id="eyBtn" onclick="toggle('eyList',event)">Year ▼</button><div class="ddlist" id="eyList"></div></div></div>
+<div class="sub" id="eSel">Selected Expiry: not set yet</div>
+<label>BARCODE / SKU</label><input id="sku" placeholder="e.g. 193950861" value="">
+<label>QUANTITY</label><input id="qty" type="number" value="1">
+<label>NOTES</label><textarea id="notes" placeholder="Shelf, storage, batch..."></textarea>
+
+<label>📸 PRODUCT PHOTO - Keep this, tap one below</label>
+<div style="background:#fff;color:#111;border-radius:12px;padding:12px">
+<b style="color:#111">1) TAKE PHOTO WITH CAMERA</b>
+<input type="file" id="photoCam" accept="image/*" capture="environment" onchange="handlePhoto(event)" style="display:block;width:100%;padding:12px;background:#eee;color:#111;border:2px solid #22c55e;border-radius:10px;margin:8px 0;font-size:16px">
+<b style="color:#111">2) CHOOSE FROM FILES / GALLERY</b>
+<input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)" style="display:block;width:100%;padding:12px;background:#eee;color:#111;border:2px solid #111;border-radius:10px;margin:8px 0;font-size:16px">
+<div id="photoStatus" class="small" style="color:#111">Tap one input above - Android will open Camera or Files. If one doesn't open, try the other.</div>
+<img id="photoPreview" style="display:none;width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:8px">
+<button type="button" onclick="clearPhoto()" id="clearPhotoBtn" style="background:#444;color:#fff;border:0;padding:8px 12px;border-radius:8px;margin-top:6px;display:none">❌ Remove Photo</button>
+</div>
+<button class="save" onclick="saveItem()">💾 Save Item</button>
+<div class="sub" style="margin-top:10px">Rule: 6 months = remove 2 days before • 1 year = 2 weeks before • 2 years = 1 month before.</div>
+
+
+
+<div style="background:#111;color:#fff;border-radius:12px;padding:12px;margin-top:12px;border:2px solid #ef4444">
+<b>📋 STORE REPORT - For Manager</b>
+<div class="small" style="color:#ccc">Tap Generate - it counts Expired, Remove Now, Near Expire. Show it to a manager as proof. Export CSV to keep as audit evidence.</div>
+<button type="button" onclick="genCompliance()" style="background:#ef4444;color:#fff;border:0;padding:12px;border-radius:10px;width:100%;margin-top:8px;font-weight:bold">📋 Generate Store Report</button>
+<button type="button" onclick="exportComplianceCSV()" style="background:#fff;color:#111;border:0;padding:12px;border-radius:10px;width:100%;margin-top:8px;font-weight:bold">📄 Export Store Report CSV (for Manager)</button>
+<div id="complianceOut" style="background:#fff;color:#111;border-radius:10px;padding:12px;margin-top:10px;display:none;white-space:pre-wrap;font-size:14px"></div>
+</div>
+<div style="background:#fff;color:#111;border-radius:12px;padding:12px;margin-top:12px;border:2px solid #f59e0b">
+<b>⏰ REMIND ME BEFORE EXPIRY</b>
+<div class="small" style="color:#444">This app reminds you BEFORE expiry - not on expiry day. Remove-by is BEFORE expiry. Example: JUMBO expires 23 Nov, but it reminds you to REMOVE by 21 Nov (2 days before).</div>
+<div style="display:flex;gap:8px;margin-top:8px">
+<button type="button" onclick="showReminders(7)" style="flex:1;background:#f59e0b;color:#fff;border:0;padding:10px;border-radius:10px;font-weight:bold">Due in 7 days</button>
+<button type="button" onclick="showReminders(14)" style="flex:1;background:#111;color:#fff;border:0;padding:10px;border-radius:10px;font-weight:bold">Due in 14 days</button>
+<button type="button" onclick="showReminders(30)" style="flex:1;background:#22c55e;color:#fff;border:0;padding:10px;border-radius:10px;font-weight:bold">Due in 30 days</button>
+</div>
+<div id="reminderList" style="margin-top:10px;color:#111"></div>
+<div class="small" style="color:#444;margin-top:8px">⚠️ This is a file app, not a Play Store app - it cannot pop up by itself at 8am. To get a daily reminder: Set a phone Alarm at 8am called "Open ExpiryGuard" - open app, tap Send All Due Alerts. That is your reminder.</div>
+</div>
+<div style="background:#111;color:#fff;border-radius:12px;padding:12px;margin-top:12px;border:2px solid #22c55e">
+<b>🖼️ PHOTO GALLERY - See All Photos</b>
+<div class="small" style="color:#ccc">Tap below to see every photo you captured, all in one place.</div>
+<button type="button" onclick="toggleGallery()" id="galleryBtn" style="background:#22c55e;color:#fff;border:0;padding:12px;border-radius:10px;width:100%;margin-top:8px;font-size:16px;font-weight:bold">🖼️ Show All Photos</button>
+<div id="photoGallery" style="display:none;margin-top:10px"></div>
+</div>
+<div style="background:#fff;color:#111;border-radius:12px;padding:12px;margin-top:10px;border:2px solid #22c55e">
+<b>📏 SHELF LIFE RULE - Tap to pick</b>
+<div class="dd" style="margin-top:8px"><button class="ddbtn" id="ruleBtn" onclick="toggle('ruleList',event)" style="background:#fff;color:#111">Auto (from dates) ▼</button><div class="ddlist" id="ruleList"></div></div>
+<div id="ruleDisplay" style="margin-top:8px;font-size:15px">Pick Production + Expiry dates - the rule will show here.</div>
+<div class="small" style="color:#444;margin-top:6px">6 months or less = Remove 2 days before expiry &nbsp;|&nbsp; ~1 year = Remove 14 days (2 weeks) before &nbsp;|&nbsp; ~2 years = Remove 30 days (1 month) before</div>
+</div>
+<div class="sub" style="display:none"> Example: 7 days life → remove 2 days before = 21 Nov 2026.</div>
+</div>
+<div class="card"><h3 style="margin:0">Saved Items (<span id="count">0</span>)</h3>
+<label>SEARCH</label><input id="search" placeholder="Search product, supplier, SKU..." oninput="render()">
+<label>FILTER STATUS</label><div class="dd"><button class="ddbtn" id="stBtn" onclick="toggle('stList',event)">All ▼</button><div class="ddlist" id="stList"></div></div>
+<label>FILTER CATEGORY</label><div class="dd"><button class="ddbtn" id="fcBtn" onclick="toggle('fcList',event)">All ▼</button><div class="ddlist" id="fcList"></div></div>
+<button class="btn" onclick="clearFilters()">Clear All Filters</button>
+<div id="list"></div></div>
+<script>
+let S={cat:'Bakery',pd:'',pm:'',py:'',ed:'',em:'',ey:'',st:'All',fc:'All',rule:'Auto',customLead:7};
+let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+let months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let cats=['Dairy','Frozen','Grocery','Poultry','Bakery','Fish','Deli','Produce','Other'];
+function fill(id,arr,fn){let el=document.getElementById(id);el.innerHTML='';arr.forEach(v=>{let b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=function(e){e.stopPropagation();fn(v);closeAll();};el.appendChild(b);});}
+function setup(){
+ fill('catList',cats,v=>{S.cat=v;document.getElementById('catBtn').textContent=v+' ▼';});
+ fill('ruleList',['Auto (from dates)','6-Month Rule - Remove 2 days before','1-Year Rule - Remove 14 days before','2-Year Rule - Remove 30 days before','Custom - Pick days'],v=>{ if(v.indexOf('6-Month')===0){S.rule='2days';} else if(v.indexOf('1-Year')===0){S.rule='14days';} else if(v.indexOf('2-Year')===0){S.rule='30days';} else if(v.indexOf('Custom')===0){let n=prompt('How many days before expiry to remove? e.g. 7'); if(n){S.rule='custom'; S.customLead=parseInt(n)||7; v='Custom - Remove '+S.customLead+' days before';} else {return;}} else {S.rule='auto';} document.getElementById('ruleBtn').textContent=v+' ▼'; });
+ fill('pdList',Array.from({length:31},(_,i)=>String(i+1)),v=>{S.pd=v;document.getElementById('pdBtn').textContent=v+' ▼';upd();});
+ fill('pmList',months,v=>{S.pm=v;document.getElementById('pmBtn').textContent=v+' ▼';upd();});
+ fill('pyList',['2024','2025','2026','2027','2028','2029','2030','2031','2032'],v=>{S.py=v;document.getElementById('pyBtn').textContent=v+' ▼';upd();});
+ fill('edList',Array.from({length:31},(_,i)=>String(i+1)),v=>{S.ed=v;document.getElementById('edBtn').textContent=v+' ▼';upd();});
+ fill('emList',months,v=>{S.em=v;document.getElementById('emBtn').textContent=v+' ▼';upd();});
+ fill('eyList',['2024','2025','2026','2027','2028','2029','2030','2031','2032'],v=>{S.ey=v;document.getElementById('eyBtn').textContent=v+' ▼';upd();});
+ fill('stList',['All','Safe','Near Expire','Remove Now','Expired'],v=>{S.st=v;document.getElementById('stBtn').textContent=v+' ▼';render();});
+ fill('fcList',['All'].concat(cats),v=>{S.fc=v;document.getElementById('fcBtn').textContent=v+' ▼';render();});
+ // Pre-fill JUMBO test dates
+ S.pd='16';S.pm='November';S.py='2026';S.ed='23';S.em='November';S.ey='2026';
+ document.getElementById('pdBtn').textContent='16 ▼';document.getElementById('pmBtn').textContent='November ▼';document.getElementById('pyBtn').textContent='2026 ▼';
+ document.getElementById('edBtn').textContent='23 ▼';document.getElementById('emBtn').textContent='November ▼';document.getElementById('eyBtn').textContent='2026 ▼';
+ upd();render();
+}
+function toggle(id,e){e.stopPropagation();let el=document.getElementById(id);let open=el.style.display==='block';closeAll();el.style.display=open?'none':'block';}
+function closeAll(){document.querySelectorAll('.ddlist').forEach(d=>d.style.display='none');}
+document.addEventListener('click',closeAll);
+function upd(){document.getElementById('pSel').textContent='Selected Production: '+(S.pd&&S.pm&&S.py?S.pd+' '+S.pm+' '+S.py:'not set yet - pick Day, Month AND Year');document.getElementById('eSel').textContent='Selected Expiry: '+(S.ed&&S.em&&S.ey?S.ed+' '+S.em+' '+S.ey:'not set yet - pick Day, Month AND Year');}
+function showErr(m){let e=document.getElementById('err');e.style.display='block';e.textContent='⚠️ '+m;document.getElementById('ok').style.display='none';window.scrollTo(0,0);}
+function showOk(m){let e=document.getElementById('ok');e.style.display='block';e.textContent=m;document.getElementById('err').style.display='none';}
+function parse(d,m,y){return new Date(y,months.indexOf(m),parseInt(d));}
+function saveItem(){
+ let name=document.getElementById('pname').value.trim();
+ if(!name) return showErr('Please type Product Name');
+ if(!S.pd||!S.pm||!S.py) return showErr('Please select Production Date: Day, Month AND Year');
+ if(!S.ed||!S.em||!S.ey) return showErr('Please select Expiry Date: Day, Month AND Year');
+ let prod=parse(S.pd,S.pm,S.py), exp=parse(S.ed,S.em,S.ey);
+ if(exp<prod) return showErr('Expiry must be after Production');
+ let life=Math.round((exp-prod)/86400000);
+ let autoLead=life<=190?2:life<=540?14:30; let lead=S.rule==='2days'?2:S.rule==='14days'?14:S.rule==='30days'?30:S.rule==='custom'?S.customLead:autoLead; let ruleName=S.rule==='2days'?'6-Month Rule - Remove 2 days before expiry':S.rule==='14days'?'1-Year Rule - Remove 14 days (2 weeks) before expiry':S.rule==='30days'?'2-Year Rule - Remove 30 days (1 month) before expiry':S.rule==='custom'?('Custom - Remove '+S.customLead+' days before expiry'):('Auto - '+(life<=190?'6-Month Rule - Remove 2 days before expiry':life<=540?'1-Year Rule - Remove 14 days (2 weeks) before expiry':'2-Year Rule - Remove 30 days (1 month) before expiry')); 
+ let rem=new Date(exp); rem.setDate(rem.getDate()-lead);
+ let today=new Date(); today.setHours(0,0,0,0);
+ let days=Math.round((exp-today)/86400000);
+ let status=days<0?'Expired':(new Date()>=rem?'Remove Now':(days<=30?'Near Expire':'Safe'));
+ let it={name:name,sup:document.getElementById('sup').value,phone:document.getElementById('phone').value,cat:S.cat,prod:S.pd+' '+S.pm+' '+S.py,exp:S.ed+' '+S.em+' '+S.ey,sku:document.getElementById('sku').value,qty:document.getElementById('qty').value,loc:document.getElementById('itemLocation')?.value||'',store:document.getElementById('storeName')?.value||'',officer:document.getElementById('officerName')?.value||'',photo:window.CUR_PHOTO||'',notes:document.getElementById('notes').value,rem:rem.getDate()+' '+months[rem.getMonth()]+' '+rem.getFullYear(),days:days,status:status,lead:lead,life:life,rule:ruleName};
+ items.unshift(it); localStorage.setItem('eg_items',JSON.stringify(items));
+ window.CUR_PHOTO=''; var _pp=document.getElementById('photoPreview'); if(_pp){_pp.style.display='none';_pp.src='';} var _cp=document.getElementById('clearPhotoBtn'); if(_cp)_cp.style.display='none'; ['photoCam','photoFile'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';});
+ showOk('✓ Saved: '+name+' - Remove by '+it.rem+' - Status: '+status);
+ render();
+}
+function clearFilters(){document.getElementById('search').value='';S.st='All';S.fc='All';document.getElementById('stBtn').textContent='All ▼';document.getElementById('fcBtn').textContent='All ▼';render();}
+function render(){
+ let q=(document.getElementById('search').value||'').toLowerCase();
+ let f=items.filter(i=>{if(q && !(i.name+' '+i.sup+' '+i.sku+' '+i.cat).toLowerCase().includes(q)) return false; if(S.st!=='All'&&i.status!==S.st) return false; if(S.fc!=='All'&&i.cat!==S.fc) return false; return true;});
+ document.getElementById('count').textContent=items.length;
+ let h=''; if(!items.length) h='<p class="small">No items saved yet - fill the form above and tap Save Item. JUMBO is pre-filled for you.</p>';
+ f.forEach((i,idx)=>{let cls=i.status==='Remove Now'||i.status==='Expired'?'red':i.status==='Near Expire'?'amber':'green';
+  let msg=encodeURIComponent('Expiry Alert: '+i.name+' (SKU '+i.sku+') from Supplier '+i.sup+' expires on '+i.exp+'. Please remove from shelf by '+i.rem+'. Category: '+i.cat+'.');
+  let wa=i.phone?('https://wa.me/'+i.phone.replace(/[^0-9]/g,'')+'?text='+msg):'';
+  h+='<div class="item">'+(i.photo?'<img src="'+i.photo+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px">':'')+'<b>'+i.name+'</b <span class="badge '+cls+'">'+i.status+'</span><div class="small">SKU: '+i.sku+' | Supplier: '+i.sup+' | WhatsApp: '+(i.phone||'-')+'<br>Category: '+i.cat+' | Qty: '+i.qty+'<br>Production: '+i.prod+' | Expiry: '+i.exp+'<br><b>Remove by: '+i.rem+'</b> | Location: '+(i.loc||'-')+' | Shelf life: '+i.life+' days | Shelf Life Rule: '+(i.rule||'Auto')+' | Lead: '+i.lead+' days | Days left: '+i.days+'</div>'+(wa?'<a href="'+wa+'" target="_blank"><button class="btn wa">Send WhatsApp Alert</button></a>':'<span class="small">Add WhatsApp number to alert</span>')+'<button class="btn" onclick="delItem('+items.indexOf(i)+')">Delete</button></div>';});
+ document.getElementById('list').innerHTML=h||'<p class="small">No items match these filters. Tap Clear All Filters.</p>';
+}
+function delItem(i){items.splice(i,1);localStorage.setItem('eg_items',JSON.stringify(items));render();}
+setup();
+</script>
+<div class="card" style="border:2px solid #22c55e">
+<h3 style="margin:0">☀️ Daily Auto-Check (Option A - FREE)</h3>
+<p class="sub">Every morning when you open the app, it automatically checks what's due.</p>
+<div id="dailyBox" style="background:#fff;color:#111;border-radius:12px;padding:12px;font-weight:700">Checking...</div>
+<button class="save" style="background:#25D366" onclick="sendAllWA()">📲 Send All Due Alerts (one by one)</button>
+<p class="sub">How it works: Tap Send All Due → WhatsApp opens for 1st item → tap Send in WhatsApp → come back → tap Next → WhatsApp opens for 2nd item. 2 taps per item, no token, no payment.</p>
+</div>
+<script>
+function dailyCheck(){
+ let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+ let due=items.filter(i=>i.status==='Remove Now'||i.status==='Expired'||i.status==='Near Expire');
+ let el=document.getElementById('dailyBox');
+ if(!due.length) el.innerHTML='✅ Nothing due today. All safe.';
+ else el.innerHTML='⚠️ '+due.length+' item(s) need attention today:<br>'+due.map(d=>'• '+d.name+' - Remove by '+d.rem+' - '+d.status).join('<br>');
+}
+let waQueue=[]; let waIdx=0;
+function sendAllWA(){
+ let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+ waQueue=items.filter(i=>i.status==='Remove Now'||i.status==='Expired'||i.status==='Near Expire');
+ if(!waQueue.length){alert('No due items to send.');return;}
+ waIdx=0; sendNextWA();
+}
+function sendNextWA(){
+ if(waIdx>=waQueue.length){alert('Done! All '+waQueue.length+' alerts sent / opened.');return;}
+ let i=waQueue[waIdx];
+ let txt='Expiry Alert: '+i.name+' (SKU '+i.sku+') from Supplier '+i.sup+' expires on '+i.exp+'. Please remove from shelf by '+i.rem+'. Category: '+i.cat+'.';
+ let to=(i.phone||'+966535864413').replace(/[^0-9]/g,'');
+ let ok=confirm('Send '+(waIdx+1)+' of '+waQueue.length+': '+i.name+' to '+to+'?\n\nTap OK to open WhatsApp, tap Send in WhatsApp, then come back and tap OK for next.');
+ if(ok){window.open('https://wa.me/'+to+'?text='+encodeURIComponent(txt),'_blank'); waIdx++; if(waIdx<waQueue.length){setTimeout(()=>{if(confirm('Next: '+waQueue[waIdx].name+'? Tap OK to open WhatsApp.')) sendNextWA();},800);} else {alert('Done!');}}
+}
+setTimeout(dailyCheck,500);
+</script>
+
+<div class="card" style="border:2px solid #22c55e">
+<h3 style="margin:0">💾 Backup - Save Forever</h3>
+<p class="sub">Your items live in Chrome on this phone. Backup saves them to a file you can keep in Drive / WhatsApp. If Chrome ever clears, Import brings them all back.</p>
+<button class="save" style="background:#22c55e" onclick="exportBackup()">⬇️ Export Backup (JSON)</button>
+<button class="save" style="background:#fff;color:#111;border:2px solid #22c55e" onclick="exportCSV()">📄 Export as CSV / Excel</button>
+<label style="margin-top:12px">RESTORE BACKUP</label>
+<input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="background:#fff;color:#111">
+<div id="backupMsg" class="sub" style="margin-top:8px"></div>
+<p class="sub">Tip: After Export, share the backup file to yourself on WhatsApp / Drive. Name it: ExpiryGuard-Backup-[date].json</p>
+</div>
+<script>
+function exportBackup(){
+ let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+ let data={app:'ExpiryGuard',exported:new Date().toISOString(),count:items.length,items:items};
+ let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ExpiryGuard-Backup-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+ document.getElementById('backupMsg').textContent='✓ Backup exported: '+items.length+' items. Save this file to Drive / WhatsApp.';
+}
+function exportCSV(){
+ let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+ let csv='Product,SKU,Supplier,WhatsApp,Category,Production,Expiry,Remove By,Quantity,Status,Days Left\n';
+ items.forEach(i=>{csv+='"'+i.name+'","'+i.sku+'","'+i.sup+'","'+i.phone+'","'+i.cat+'","'+i.prod+'","'+i.exp+'","'+i.rem+'","'+i.qty+'","'+i.status+'","'+i.days+'"\n';});
+ let blob=new Blob([csv],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ExpiryGuard-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+ document.getElementById('backupMsg').textContent='✓ CSV exported: '+items.length+' items. Opens in Excel / Sheets.';
+}
+function importBackup(e){
+ let f=e.target.files[0]; if(!f) return;
+ let r=new FileReader(); r.onload=function(){
+  try{let d=JSON.parse(r.result); let items=d.items||d; if(!Array.isArray(items)) throw new Error('Not a backup file');
+  // Merge: keep existing + add imported not already there (by name+sku+exp)
+  let cur=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  let merged=cur.slice();
+  items.forEach(it=>{if(!merged.some(m=>m.name===it.name&&m.sku===it.sku&&m.exp===it.exp)) merged.unshift(it);});
+  localStorage.setItem('eg_items',JSON.stringify(merged));
+  document.getElementById('backupMsg').textContent='✓ Restored! '+items.length+' items imported. Total now: '+merged.length+'. Scroll to Saved Items to see them.';
+  render(); dailyCheck();
+  }catch(err){document.getElementById('backupMsg').textContent='❌ Could not import: '+err.message+' - Pick the .json backup file, not the CSV.';}
+ }; r.readAsText(f);
+}
+</script>
+
+<script>
+function getSavedProducts(){
+ let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+ let map={}; items.forEach(i=>{if(i.name) map[i.name]=i;});
+ return Object.values(map);
+}
+function getSavedSuppliers(){
+ let items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+ let map={}; items.forEach(i=>{if(i.sup) map[i.sup]=i;});
+ return Object.values(map);
+}
+function refreshPickers(){
+ let prods=getSavedProducts(), sups=getSavedSuppliers();
+ document.getElementById('reuseMsg').textContent = prods.length ? 'Saved: '+prods.length+' product(s) - '+prods.map(p=>p.name).join(', ')+' | Suppliers: '+sups.map(s=>s.sup).join(', ') : 'No saved products yet - save JUMBO once, then it will appear here.';
+ fill('pickProdList', prods.length?prods.map(p=>p.name):['(No saved products yet)'], v=>{ if(v.startsWith('(')) return; let it=prods.find(p=>p.name===v); if(!it) return; document.getElementById('pname').value=it.name; document.getElementById('sup').value=it.sup||''; document.getElementById('phone').value=it.phone||''; document.getElementById('sku').value=it.sku||''; S.cat=it.cat||'Bakery'; document.getElementById('catBtn').textContent=S.cat+' ▼'; document.getElementById('pickProdBtn').textContent=v+' ▼'; document.getElementById('reuseMsg').textContent='✓ Auto-filled from saved: '+v+' - Supplier '+it.sup+' - WhatsApp '+it.phone+' - Just pick new Production / Expiry dates and Save.'; });
+ fill('pickSupList', sups.length?sups.map(s=>s.sup+' - '+s.phone):['(No saved suppliers yet)'], v=>{ if(v.startsWith('(')) return; let sup=v.split(' - ')[0]; let it=sups.find(s=>s.sup===sup); if(!it) return; document.getElementById('sup').value=it.sup; document.getElementById('phone').value=it.phone||''; document.getElementById('pickSupBtn').textContent=it.sup+' ▼'; document.getElementById('reuseMsg').textContent='✓ Supplier auto-filled: '+it.sup+' - WhatsApp '+it.phone; });
+}
+// Hook into existing render/save: after save, refresh pickers
+let _origRender = render;
+render = function(){ _origRender(); refreshPickers(); };
+// Also after saveItem, refresh
+let _origSave = saveItem;
+saveItem = function(){ _origSave(); setTimeout(refreshPickers,100); };
+setTimeout(refreshPickers,800);
+</script>
+
+<script>
+setInterval(function(){
+  try{
+    var el=document.getElementById('ruleDisplay'); if(!el) return;
+    // S holds selected date parts in this file
+    if(!window.S || !S.pd || !S.pm || !S.py || !S.ed || !S.em || !S.ey){ el.textContent='Pick Production + Expiry dates - the rule will show here.'; return; }
+    var m={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    var p=new Date(parseInt(S.py), m[S.pm], parseInt(S.pd));
+    var e=new Date(parseInt(S.ey), m[S.em], parseInt(S.ed));
+    var life=Math.round((e-p)/86400000);
+    if(isNaN(life)||life<0){ el.textContent='Expiry must be after Production.'; return; }
+    var autoLead=life<=190?2:life<=540?14:30; var lead=S.rule==='2days'?2:S.rule==='14days'?14:S.rule==='30days'?30:S.rule==='custom'?S.customLead:autoLead; var rule=S.rule==='2days'?'6-Month Rule':S.rule==='14days'?'1-Year Rule':S.rule==='30days'?'2-Year Rule':S.rule==='custom'?('Custom ('+S.customLead+' days)'):('Auto ('+autoLead+' days)');
+    el.textContent='Shelf life: '+life+' days  ->  '+rule+'  ->  Will remove '+lead+' days before expiry';
+  }catch(err){}
+}, 500);
+</script>
+
+<script>
+window.CUR_PHOTO='';
+function handlePhoto(e){
+  var f=e.target.files && e.target.files[0]; if(!f){ document.getElementById('photoStatus').textContent='No file picked - tap again.'; return; }
+  document.getElementById('photoStatus').textContent='Loading photo: '+f.name+'...';
+  var r=new FileReader();
+  r.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement('canvas'); var max=800,w=img.width,h=img.height;
+      if(w>max){h=h*max/w;w=max;} if(h>max){w=w*max/h;h=max;}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      window.CUR_PHOTO=c.toDataURL('image/jpeg',0.7);
+      var p=document.getElementById('photoPreview'); p.src=window.CUR_PHOTO; p.style.display='block';
+      document.getElementById('clearPhotoBtn').style.display='block';
+      document.getElementById('photoStatus').textContent='✓ Photo ready - now tap Save Item';
+    };
+    img.onerror=function(){document.getElementById('photoStatus').textContent='Could not read photo - try Choose From Files.';};
+    img.src=r.result;
+  };
+  r.onerror=function(){document.getElementById('photoStatus').textContent='Could not read file - try the other input.';};
+  r.readAsDataURL(f);
+}
+function clearPhoto(){window.CUR_PHOTO='';var p=document.getElementById('photoPreview');p.src='';p.style.display='none';document.getElementById('clearPhotoBtn').style.display='none';['photoCam','photoFile'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});document.getElementById('photoStatus').textContent='Photo removed.';}
+</script>
+
+<script>
+function toggleGallery(){
+  var g=document.getElementById('photoGallery');
+  var btn=document.getElementById('galleryBtn');
+  if(g.style.display==='block'){ g.style.display='none'; btn.textContent='🖼️ Show All Photos'; return; }
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var withPhoto=items.filter(function(i){return i.photo;});
+  if(!withPhoto.length){ g.innerHTML='<div style="color:#fff">No photos saved yet. Pick a photo, then tap Save Item - it will appear here.</div>'; }
+  else{
+    var h='<div style="color:#fff;margin-bottom:8px">'+withPhoto.length+' photos saved</div>';
+    withPhoto.forEach(function(i){
+      h+='<div style="background:#222;border-radius:10px;padding:8px;margin-bottom:10px"><img src="'+i.photo+'" style="width:100%;border-radius:8px"><b style="color:#fff">'+i.name+'</b><div style="color:#ccc;font-size:13px">Expiry: '+i.exp+' | Remove by: '+i.rem+' | '+i.status+'</div></div>';
+    });
+    g.innerHTML=h;
+  }
+  g.style.display='block'; btn.textContent='❌ Hide All Photos';
+}
+</script>
+
+<script>
+function showReminders(daysAhead){
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var today=new Date(); today.setHours(0,0,0,0);
+  var list=items.filter(function(i){
+    // Parse Remove-by like "21 November 2026" or "21 Nov 2026"
+    var d=new Date(i.rem); if(isNaN(d)) return false;
+    var diff=Math.round((d-today)/86400000);
+    return diff>=0 && diff<=daysAhead;
+  });
+  var el=document.getElementById('reminderList');
+  if(!list.length){ el.innerHTML='<b>No items due to REMOVE in next '+daysAhead+' days.</b> All safe for now.'; return; }
+  var h='<b>'+list.length+' item(s) to REMOVE in next '+daysAhead+' days (BEFORE expiry):</b>';
+  list.forEach(function(i){ h+='<div style="border-top:1px solid #eee;padding:8px 0"><b>'+i.name+'</b> - Remove by: '+i.rem+' - Expires: '+i.exp+' - '+i.status+(i.photo?'<br><img src="'+i.photo+'" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:4px">':'')+'</div>'; });
+  el.innerHTML=h;
+}
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script>
+<script>
+function genCompliance(){
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var store=document.getElementById('storeName')?.value||'Store not set';
+  var off=document.getElementById('officerName')?.value||'Staff not set';
+  var date=new Date().toLocaleString();
+  var exp=items.filter(function(i){return i.status==='Expired';});
+  var rem=items.filter(function(i){return i.status==='Remove Now';});
+  var near=items.filter(function(i){return i.status==='Near Expire';});
+  var safe=items.filter(function(i){return i.status==='Safe';});
+  var txt='EXPIRY STORE REPORT\nStore: '+store+'\nStaff: '+off+'\nDate: '+date+'\n------------------------------\nTotal checked: '+items.length+'\nEXPIRED (on shelf - REMOVE NOW): '+exp.length+'\nREMOVE NOW (Remove-by reached): '+rem.length+'\nNEAR EXPIRE (within 30 days): '+near.length+'\nSAFE: '+safe.length+'\n------------------------------\n';
+  function list(arr,title){ txt+='\n'+title+'\n'; if(!arr.length) txt+='None\n'; arr.forEach(function(i){ txt+='- '+i.name+' | SKU '+i.sku+' | Loc: '+(i.loc||'-')+' | Exp: '+i.exp+' | Remove by: '+i.rem+' | Supplier: '+i.sup+'\n'; }); }
+  list(exp,'EXPIRED ITEMS:'); list(rem,'REMOVE NOW ITEMS:'); list(near,'NEAR EXPIRE ITEMS:');
+  txt+='\nStaff signature: ________________\nManager signature: ________________\n';
+  var el=document.getElementById('complianceOut'); el.style.display='block'; el.textContent=txt;
+  window._complianceTxt=txt;
+}
+function exportComplianceCSV(){
+  if(!window._complianceTxt) genCompliance();
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var csv='Store,Staff,Date,Product,SKU,Supplier,Location,Category,Production,Expiry,Remove By,Status,Shelf Life Rule\n';
+  var store=document.getElementById('storeName')?.value||''; var off=document.getElementById('officerName')?.value||''; var date=new Date().toISOString().slice(0,10);
+  items.forEach(function(i){ csv+='"'+store+'","'+off+'","'+date+'","'+i.name+'","'+i.sku+'","'+i.sup+'","'+(i.loc||'')+'","'+i.cat+'","'+i.prod+'","'+i.exp+'","'+i.rem+'","'+i.status+'","'+(i.rule||'')+'"\n'; });
+  var blob=new Blob([csv],{type:'text/csv'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Store-Report-'+date+'.csv'; a.click();
+}
+</script>
+
+<script>
+var I18N={
+en:{title:'ExpiryGuard',sub:'Expiry monitoring for your shop',reuse:'Re-use Saved Product / Supplier',prod:'PRODUCT NAME *',sup:'SUPPLIER NAME / NO.',wa:'SUPPLIER WHATSAPP',cat:'CATEGORY',pd:'PRODUCTION DATE',ed:'EXPIRY DATE',rule:'SHELF LIFE RULE - Tap to pick',save:'Save Item',backup:'Backup - Save Forever',comp:'STORE REPORT - For Manager',gal:'PHOTO GALLERY - See All Photos',rem:'REMIND ME BEFORE EXPIRY',lp:'STORE REPORT - STAFF INFO',photo:'PRODUCT PHOTO - Take a pic (optional)'},
+ar:{title:'حارس الانتهاء',sub:'مراقبة انتهاء المنتجات لمتجرك',reuse:'إعادة استخدام منتج / مورد محفوظ',prod:'اسم المنتج *',sup:'اسم / رقم المورد',wa:'واتساب المورد',cat:'الفئة',pd:'تاريخ الإنتاج',ed:'تاريخ الانتهاء',rule:'قاعدة مدة الصلاحية - اضغط للاختيار',save:'حفظ المنتج',backup:'نسخة احتياطية - حفظ للأبد',comp:'تقرير الامتثال - للمدير / التدقيق',gal:'معرض الصور - عرض كل الصور',rem:'ذكّرني قبل الانتهاء',lp:'منع الخسارة - معلومات التدقيق',photo:'صورة المنتج - التقط صورة (اختياري)'},
+hi:{title:'ExpiryGuard',sub:'आपकी दुकान के लिए एक्सपायरी निगरानी',reuse:'सहेजा उत्पाद / आपूर्तिकर्ता फिर से उपयोग करें',prod:'उत्पाद का नाम *',sup:'आपूर्तिकर्ता का नाम / नं.',wa:'आपूर्तिकर्ता व्हाट्सऐप',cat:'श्रेणी',pd:'उत्पादन तिथि',ed:'समाप्ति तिथि',rule:'शेल्फ लाइफ नियम - चुनने के लिए टैप करें',save:'आइटम सहेजें',backup:'बैकअप - हमेशा के लिए सहेजें',comp:'अनुपालन रिपोर्ट - प्रबंधक / ऑडिट के लिए',gal:'फोटो गैलरी - सभी फोटो देखें',rem:'समाप्ति से पहले मुझे याद दिलाएं',lp:'नुकसान रोकथाम - ऑडिट जानकारी',photo:'उत्पाद फोटो - फोटो लें (वैकल्पिक)'},
+bn:{title:'ExpiryGuard',sub:'আপনার দোকানের জন্য মেয়াদ পর্যবেক্ষণ',reuse:'সংরক্ষিত পণ্য / সরবরাহকারী পুনরায় ব্যবহার করুন',prod:'পণ্যের নাম *',sup:'সরবরাহকারীর নাম / নং',wa:'সরবরাহকারী হোয়াটসঅ্যাপ',cat:'বিভাগ',pd:'উৎপাদন তারিখ',ed:'মেয়াদ শেষের তারিখ',rule:'শেলফ লাইফ নিয়ম - বেছে নিতে ট্যাপ করুন',save:'আইটেম সংরক্ষণ করুন',backup:'ব্যাকআপ - চিরতরে সংরক্ষণ করুন',comp:'কমপ্লায়েন্স রিপোর্ট - ম্যানেজার / অডিটের জন্য',gal:'ফটো গ্যালারি - সব ছবি দেখুন',rem:'মেয়াদ শেষের আগে আমাকে মনে করিয়ে দিন',lp:'ক্ষতি প্রতিরোধ - অডিট তথ্য',photo:'পণ্যের ছবি - ছবি তুলুন (ঐচ্ছিক)'},
+ne:{title:'ExpiryGuard',sub:'तपाईंको पसलको लागि म्याद अनुगमन',reuse:'सुरक्षित उत्पादन / आपूर्तिकर्ता पुन: प्रयोग गर्नुहोस्',prod:'उत्पादनको नाम *',sup:'आपूर्तिकर्ता नाम / नं.',wa:'आपूर्तिकर्ता व्हाट्सएप',cat:'श्रेणी',pd:'उत्पादन मिति',ed:'म्याद समाप्ति मिति',rule:'शेल्फ लाइफ नियम - छान्न ट्याप गर्नुहोस्',save:'आइटम बचत गर्नुहोस्',backup:'ब्याकअप - सधैंको लागि बचत गर्नुहोस्',comp:'अनुपालन रिपोर्ट - प्रबन्धक / अडिटको लागि',gal:'फोटो ग्यालरी - सबै फोटो हेर्नुहोस्',rem:'म्याद सकिनु अघि मलाई सम्झाउनुहोस्',lp:'हानि रोकथाम - अडिट जानकारी',photo:'उत्पादन फोटो - फोटो लिनुहोस् (वैकल्पिक)'},
+de:{title:'ExpiryGuard',sub:'Verfallsüberwachung für Ihr Geschäft',reuse:'Gespeichertes Produkt / Lieferant wiederverwenden',prod:'PRODUKTNAME *',sup:'LIEFERANT NAME / NR.',wa:'LIEFERANT WHATSAPP',cat:'KATEGORIE',pd:'PRODUKTIONSDATUM',ed:'VERFALLSDATUM',rule:'HALTBARKEITSREGEL - Tippen zum Auswählen',save:'Artikel speichern',backup:'Backup - Für immer speichern',comp:'STORE REPORT-BERICHT - Für Manager / Audit',gal:'FOTO-GALERIE - Alle Fotos ansehen',rem:'Vor Ablauf erinnern',lp:'VERLUSTPRÄVENTION - AUDIT-INFO',photo:'PRODUKTFOTO - Foto machen (optional)'},
+fr:{title:'ExpiryGuard',sub:'Surveillance des dates d’expiration pour votre magasin',reuse:'Réutiliser produit / fournisseur enregistré',prod:'NOM DU PRODUIT *',sup:'NOM / N° FOURNISSEUR',wa:'WHATSAPP FOURNISSEUR',cat:'CATÉGORIE',pd:'DATE DE PRODUCTION',ed:'DATE D’EXPIRATION',rule:'RÈGLE DE DURÉE DE VIE - Touchez pour choisir',save:'Enregistrer l’article',backup:'Sauvegarde - Enregistrer pour toujours',comp:'RAPPORT DE CONFORMITÉ - Pour Manager / Audit',gal:'GALERIE PHOTOS - Voir toutes les photos',rem:'Rappelle-moi avant expiration',lp:'PRÉVENTION DES PERTES - INFOS AUDIT',photo:'PHOTO PRODUIT - Prendre une photo (optionnel)'}
+,
+sw:{title:'ExpiryGuard',sub:'Ufuatiliaji wa muda wa kuisha kwa duka lako',reuse:'Tumia tena Bidhaa / Msambazaji uliyohifadhi',prod:'JINA LA BIDHAA *',sup:'JINA / NAMBARI YA MSAMBAZAJI',wa:'WHATSAPP YA MSAMBAZAJI',cat:'KATEGORIA',pd:'TAREHE YA UZALISHAJI',ed:'TAREHE YA KUISHIA',rule:'KANUNI YA MAISHA YA RAFU - Gusa kuchagua',save:'Hifadhi Kifaa',backup:'Hifadhi Nakala - Hifadhi Milele',comp:'RIPOTI YA DUKA - Kwa Meneja',gal:'GALERI YA PICHA - Tazama Picha Zote',rem:'Nikumbushe Kabla Haijaisha',lp:'RIPOTI YA DUKA - TAARIFA ZA MFANYAKAZI',photo:'PICHA YA BIDHAA - Piga picha (hiari)'},
+lg:{title:'ExpiryGuard',sub:'Okulondoola ennaku eziggwaako ku dduuka lyo',reuse:'Ddamu Kozesa Ekitundu / Omugabi Omuterekeddwa',prod:'ERINNYA LYEBINTU *',sup:'ERINNYA / NNAMBA YOMUGABI',wa:'WHATSAPP YOMUGABI',cat:'EKIKA',pd:'OLUNAKU LWOKUKOLA',ed:'OLUNAKU LWOKUGGWAAKO',rule:'ETTEKA LYOBULAMU BWESHEFU - Nyiga okulonda',save:'Tereka Ekintu',backup:'Backup - Tereka Okudda n Ennaku Zonna',comp:'LIPOTI LYEDDUUKA - Eri Manejja',gal:'GALLERY YEBIFANANYI - Laba Ebifananyi Byonna',rem:'Njjukiza Nga Tannaggwaako',lp:'LIPOTI LYEDDUUKA - EBIFA KWABAKOZI',photo:'EKIFANANYI KYEBINTU - Kuba Ekifananyi (kyayagalwa)'},
+so:{title:'ExpiryGuard',sub:'La socodka taariikhda dhicitaanka ee dukaankaaga',reuse:'Dib u isticmaal Alaab / Alaab-qeybiye la keydiyay',prod:'MAGACA ALAABTA *',sup:'MAGACA / LAMBAR ALAAB-QEYBIYE',wa:'WHATSAPP ALAAB-QEYBIYE',cat:'QAYBTA',pd:'TAARIIKHDA SOO SAARIDDA',ed:'TAARIIKHDA DHICITAANKA',rule:'XEERKA NOLOSHA SHELFKA - Taabo si aad u doorato',save:'Keydi Shayga',backup:'Kayd - Kaydi Weligeed',comp:'WARBIXIN DUKAAN - Maamulaha',gal:'GALLERY SAWIR - Eeg Dhammaan Sawirada',rem:'I xasuusi ka hor inta ay dhacdo',lp:'WARBIXIN DUKAAN - MACLUUMAAD SHAQAALE',photo:'SAWIR ALAAB - Qaado sawir (ikhtiyaari)'},
+am:{title:'ExpiryGuard',sub:'ለሱቅዎ የሚያበቃበት ቀን ክትትል',reuse:'የተቀመጠ ምርት / አቅራቢ እንደገና ተጠቀም',prod:'የምርት ስም *',sup:'የአቅራቢ ስም / ቁጥር',wa:'የአቅራቢ ዋትስአፕ',cat:'ምድብ',pd:'የምርት ቀን',ed:'የሚያበቃበት ቀን',rule:'የመደርደሪያ ሕይወት ደንብ - ለመምረጥ ንካ',save:'እቃ አስቀምጥ',backup:'ምትኬ - ለዘላለም አስቀምጥ',comp:'የሱቅ ሪፖርት - ለሥራ አስኪያጅ',gal:'የፎቶ ጋለሪ - ሁሉንም ፎቶዎች ተመልከት',rem:'ከማብቃቱ በፊት አስታውሰኝ',lp:'የሱቅ ሪፖርት - የሰራተኛ መረጃ',photo:'የምርት ፎቶ - ፎቶ አንሳ (አማራጭ)'},
+ur:{title:'ExpiryGuard',sub:'آپ کی دکان کے لیے ایکسپائری نگرانی',reuse:'محفوظ شدہ پروڈکٹ / سپلائر دوبارہ استعمال کریں',prod:'پروڈکٹ کا نام *',sup:'سپلائر کا نام / نمبر',wa:'سپلائر واٹس ایپ',cat:'زمرہ',pd:'پیداوار کی تاریخ',ed:'ختم ہونے کی تاریخ',rule:'شیلف لائف اصول - منتخب کرنے کے لیے ٹیپ کریں',save:'آئٹم محفوظ کریں',backup:'بیک اپ - ہمیشہ کے لیے محفوظ کریں',comp:'اسٹور رپورٹ - مینیجر کے لیے',gal:'فوٹو گیلری - تمام تصاویر دیکھیں',rem:'ختم ہونے سے پہلے مجھے یاد دلائیں',lp:'اسٹور رپورٹ - عملے کی معلومات',photo:'پروڈکٹ تصویر - تصویر لیں (اختیاری)'},
+es:{title:'ExpiryGuard',sub:'Control de caducidad para tu tienda',reuse:'Reutilizar producto / proveedor guardado',prod:'NOMBRE DEL PRODUCTO *',sup:'NOMBRE / N° PROVEEDOR',wa:'WHATSAPP PROVEEDOR',cat:'CATEGORÍA',pd:'FECHA DE PRODUCCIÓN',ed:'FECHA DE CADUCIDAD',rule:'REGLA DE VIDA ÚTIL - Toca para elegir',save:'Guardar artículo',backup:'Copia - Guardar para siempre',comp:'INFORME DE TIENDA - Para el gerente',gal:'GALERÍA DE FOTOS - Ver todas las fotos',rem:'Recuérdame antes de que caduque',lp:'INFORME DE TIENDA - INFO DEL PERSONAL',photo:'FOTO DEL PRODUCTO - Tomar foto (opcional)'},
+pt:{title:'ExpiryGuard',sub:'Monitoramento de validade para sua loja',reuse:'Reutilizar produto / fornecedor salvo',prod:'NOME DO PRODUTO *',sup:'NOME / N° FORNECEDOR',wa:'WHATSAPP FORNECEDOR',cat:'CATEGORIA',pd:'DATA DE PRODUÇÃO',ed:'DATA DE VALIDADE',rule:'REGRA DE VALIDADE - Toque para escolher',save:'Salvar item',backup:'Backup - Salvar para sempre',comp:'RELATÓRIO DA LOJA - Para o gerente',gal:'GALERIA DE FOTOS - Ver todas as fotos',rem:'Lembre-me antes de vencer',lp:'RELATÓRIO DA LOJA - INFO DA EQUIPE',photo:'FOTO DO PRODUTO - Tirar foto (opcional)'},
+ta:{title:'ExpiryGuard',sub:'உங்கள் கடைக்கு காலாவதி கண்காணிப்பு',reuse:'சேமித்த தயாரிப்பு / சப்ளையரை மீண்டும் பயன்படுத்தவும்',prod:'தயாரிப்பு பெயர் *',sup:'சப்ளையர் பெயர் / எண்',wa:'சப்ளையர் வாட்ஸ்அப்',cat:'வகை',pd:'தயாரிப்பு தேதி',ed:'காலாவதி தேதி',rule:'ஷெல்ஃப் லைஃப் விதி - தேர்வு செய்ய தட்டவும்',save:'பொருளை சேமி',backup:'காப்பு - என்றும் சேமி',comp:'கடை அறிக்கை - மேலாளருக்கு',gal:'புகைப்பட கேலரி - அனைத்து புகைப்படங்களையும் பார்',rem:'காலாவதியாவதற்கு முன் எனக்கு நினைவூட்டு',lp:'கடை அறிக்கை - ஊழியர் தகவல்',photo:'தயாரிப்பு புகைப்படம் - புகைப்படம் எடு (விருப்பம்)'},
+yo:{title:'ExpiryGuard',sub:'Abojuto ọjọ́ ìparí fún ilé ìtajà rẹ',reuse:'Tun lo Ọjà / Olùpèsè tí a ti fipamọ́',prod:'ORÚKỌ ỌJÀ *',sup:'ORÚKỌ / NỌ́MBÀ OLÙPÈSÈ',wa:'WHATSAPP OLÙPÈSÈ',cat:'Ẹ̀KA',pd:'ỌJỌ́ ÌṢEJÁDE',ed:'ỌJỌ́ ÌPARÍ',rule:'ÒFIN ÌGBÉSÍ SHELF - Tẹ láti yan',save:'Fi Nkan pamọ́',backup:'Àfẹyinti - Fi pamọ́ títí láé',comp:'ÌRÒYÌN ILÉ ÌTAJÀ - Fún Mánájá',gal:'GALLERY AWÒRÁN - Wo gbogbo Awòrán',rem:'Rán mi létí kí ó tó parí',lp:'ÌRÒYÌN ILÉ ÌTAJÀ - ÌSỌFÚN ỌṢÌṢẸ́',photo:'AWÒRÁN ỌJÀ - Ya awòrán (àṣàyàn)'}
+};
+function setLang(l){
+  localStorage.setItem('eg_lang',l);
+  var t=I18N[l]||I18N.en;
+  document.documentElement.lang=l; document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr';
+  // Map by text search - replace headings/labels that contain known English text
+  function rep(oldTxt,newTxt){ document.querySelectorAll('b,label,button,h3').forEach(function(el){ if(el.textContent.trim().indexOf(oldTxt)===0 && el.children.length===0){ el.textContent=newTxt; } }); }
+  // Direct: title elements
+  var h=document.querySelector('h1, h2'); if(h) h.textContent=t.title;
+  // Save button
+  document.querySelectorAll('button').forEach(function(b){ if(b.textContent.indexOf('Save Item')>-1) b.textContent='💾 '+t.save; if(b.textContent.indexOf('Generate Compliance')>-1) b.textContent='📋 '+t.comp; if(b.textContent.indexOf('Show All Photos')>-1 || b.textContent.indexOf('Hide All Photos')>-1) b.textContent='🖼️ '+t.gal; });
+  document.querySelectorAll('label').forEach(function(lb){ var txt=lb.textContent; if(txt.indexOf('PRODUCT NAME')>-1) lb.textContent=t.prod; if(txt.indexOf('SUPPLIER NAME')>-1) lb.textContent=t.sup; if(txt.indexOf('SUPPLIER WHATSAPP')>-1) lb.textContent=t.wa; if(txt.trim()==='CATEGORY') lb.textContent=t.cat; if(txt.indexOf('PRODUCTION DATE')>-1) lb.textContent=t.pd; if(txt.indexOf('EXPIRY DATE')>-1) lb.textContent=t.ed; if(txt.indexOf('PRODUCT PHOTO')>-1) lb.textContent=t.photo; });
+  document.querySelectorAll('b').forEach(function(b){ var txt=b.textContent; if(txt.indexOf('STORE REPORT')>-1 && txt.indexOf('STAFF')>-1) b.textContent='🛡️ '+t.lp; if(txt.indexOf('SHELF LIFE RULE')>-1) b.textContent='📏 '+t.rule; if(txt.indexOf('STORE REPORT')>-1) b.textContent='📋 '+t.comp; if(txt.indexOf('PHOTO GALLERY')>-1) b.textContent='🖼️ '+t.gal; if(txt.indexOf('REMIND ME BEFORE')>-1) b.textContent='⏰ '+t.rem; if(txt.indexOf('Re-use Saved')>-1) b.textContent='♻️ '+t.reuse; if(txt.indexOf('Backup')>-1 && txt.indexOf('Save Forever')>-1) b.textContent='💾 '+t.backup; });
+  var sub=document.querySelector('.sub'); if(sub && sub.textContent.indexOf('Expiry monitoring')>-1) sub.textContent=t.sub;
+}
+setTimeout(function(){ var saved=localStorage.getItem('eg_lang')||'en'; var sel=document.getElementById('langSel'); if(sel) sel.value=saved; if(saved!=='en') setLang(saved); },500);
+</script>
+</body></html>
