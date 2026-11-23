@@ -88,7 +88,7 @@ textarea{min-height:70px}
 <button type="button" onclick="clearPhoto()" id="clearPhotoBtn" style="background:#444;color:#fff;border:0;padding:8px 12px;border-radius:8px;margin-top:6px;display:none">❌ Remove Photo</button>
 </div>
 <button class="save" onclick="saveItem()">💾 Save Item</button>
-<div class="sub" style="margin-top:10px">SUPERMARKET STANDARD RULE: 3yr = remove 60 days before • 2yr = 45 days before • 1yr = 30 days before • 6mo = 14 days before • Fresh/Bakery = 2 days before • Daily Fresh = 1 day before.</div>
+<div class="sub" style="margin-top:10px">Rule: 6 months = remove 2 days before • 1 year = 2 weeks before • 2 years = 1 month before.</div>
 
 
 
@@ -101,7 +101,7 @@ textarea{min-height:70px}
 </div>
 <div style="background:#fff;color:#111;border-radius:12px;padding:12px;margin-top:12px;border:2px solid #f59e0b">
 <b>⏰ REMIND ME BEFORE EXPIRY</b>
-<div class="small" style="color:#444">This app reminds you BEFORE expiry - not on expiry day. Remove-by is BEFORE expiry. Example: Bakery item expires 23 Nov, Supermarket Standard Rule removes it by 21 Nov (2 days before). Long-life item expiring in 2 years is removed 45 days before.</div>
+<div class="small" style="color:#444">This app reminds you BEFORE expiry - not on expiry day. Remove-by is BEFORE expiry. Example: JUMBO expires 23 Nov, but it reminds you to REMOVE by 21 Nov (2 days before).</div>
 <div style="display:flex;gap:8px;margin-top:8px">
 <button type="button" onclick="showReminders(7)" style="flex:1;background:#f59e0b;color:#fff;border:0;padding:10px;border-radius:10px;font-weight:bold">Due in 7 days</button>
 <button type="button" onclick="showReminders(14)" style="flex:1;background:#111;color:#fff;border:0;padding:10px;border-radius:10px;font-weight:bold">Due in 14 days</button>
@@ -120,9 +120,9 @@ textarea{min-height:70px}
 <b>📏 SHELF LIFE RULE - Tap to pick</b>
 <div class="dd" style="margin-top:8px"><button class="ddbtn" id="ruleBtn" onclick="toggle('ruleList',event)" style="background:#fff;color:#111">Auto (from dates) ▼</button><div class="ddlist" id="ruleList"></div></div>
 <div id="ruleDisplay" style="margin-top:8px;font-size:15px">Pick Production + Expiry dates - the rule will show here.</div>
-<div class="small" style="color:#444;margin-top:6px">SUPERMARKET STANDARD RULE: 3 years = Remove 60 days before &nbsp;|&nbsp; 2 years = Remove 45 days before &nbsp;|&nbsp; 1 year = Remove 30 days before &nbsp;|&nbsp; 6 months = Remove 14 days before &nbsp;|&nbsp; Fresh / Bakery / Dairy = Remove 2 days before &nbsp;|&nbsp; Daily Fresh = Remove 1 day before before</div>
+<div class="small" style="color:#444;margin-top:6px">6 months or less = Remove 2 days before expiry &nbsp;|&nbsp; ~1 year = Remove 14 days (2 weeks) before &nbsp;|&nbsp; ~2 years = Remove 30 days (1 month) before</div>
 </div>
-<div class="sub" style="display:none"> Example: Bakery 7 days life → remove 2 days before. Canned 2 years life → remove 45 days before.</div>
+<div class="sub" style="display:none"> Example: 7 days life → remove 2 days before = 21 Nov 2026.</div>
 </div>
 <div class="card"><h3 style="margin:0">Saved Items (<span id="count">0</span>)</h3>
 <label>SEARCH</label><input id="search" placeholder="Search product, supplier, SKU..." oninput="render()">
@@ -138,7 +138,7 @@ let cats=['Dairy','Frozen','Grocery','Poultry','Bakery','Fish','Deli','Produce',
 function fill(id,arr,fn){let el=document.getElementById(id);el.innerHTML='';arr.forEach(v=>{let b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=function(e){e.stopPropagation();fn(v);closeAll();};el.appendChild(b);});}
 function setup(){
  fill('catList',cats,v=>{S.cat=v;document.getElementById('catBtn').textContent=v+' ▼';});
- fill('ruleList',['Auto - Supermarket Standard Rule (from dates)','3-Year Rule - Remove 60 days before','2-Year Rule - Remove 45 days before','1-Year Rule - Remove 30 days before','6-Month Rule - Remove 14 days before','Fresh / Bakery - Remove 2 days before','Daily Fresh - Remove 1 day before','Custom - Pick days'],v=>{ if(v.indexOf('3-Year')===0){S.rule='60days';} else if(v.indexOf('Fresh')===0){S.rule='2days';} else if(v.indexOf('Daily Fresh')===0){S.rule='1day';} else if(v.indexOf('6-Month')===0){S.rule='14days';} else if(v.indexOf('1-Year')===0){S.rule='30days';} else if(v.indexOf('2-Year')===0){S.rule='45days';} else if(v.indexOf('Custom')===0){let n=prompt('How many days before expiry to remove? e.g. 7'); if(n){S.rule='custom'; S.customLead=parseInt(n)||7; v='Custom - Remove '+S.customLead+' days before';} else {return;}} else {S.rule='auto';} document.getElementById('ruleBtn').textContent=v+' ▼'; });
+ fill('ruleList',['Auto (from dates)','6-Month Rule - Remove 2 days before','1-Year Rule - Remove 14 days before','2-Year Rule - Remove 30 days before','Custom - Pick days'],v=>{ if(v.indexOf('6-Month')===0){S.rule='2days';} else if(v.indexOf('1-Year')===0){S.rule='14days';} else if(v.indexOf('2-Year')===0){S.rule='30days';} else if(v.indexOf('Custom')===0){let n=prompt('How many days before expiry to remove? e.g. 7'); if(n){S.rule='custom'; S.customLead=parseInt(n)||7; v='Custom - Remove '+S.customLead+' days before';} else {return;}} else {S.rule='auto';} document.getElementById('ruleBtn').textContent=v+' ▼'; });
  fill('pdList',Array.from({length:31},(_,i)=>String(i+1)),v=>{S.pd=v;document.getElementById('pdBtn').textContent=v+' ▼';upd();});
  fill('pmList',months,v=>{S.pm=v;document.getElementById('pmBtn').textContent=v+' ▼';upd();});
  fill('pyList',['2024','2025','2026','2027','2028','2029','2030','2031','2032'],v=>{S.py=v;document.getElementById('pyBtn').textContent=v+' ▼';upd();});
@@ -168,7 +168,7 @@ function saveItem(){
  let prod=parse(S.pd,S.pm,S.py), exp=parse(S.ed,S.em,S.ey);
  if(exp<prod) return showErr('Expiry must be after Production');
  let life=Math.round((exp-prod)/86400000);
- let autoLead=life<=7?1:life<=60?2:life<=190?14:life<=400?30:life<=800?45:60; let lead=S.rule==='1day'?1:S.rule==='2days'?2:S.rule==='14days'?14:S.rule==='30days'?30:S.rule==='45days'?45:S.rule==='60days'?60:S.rule==='custom'?S.customLead:autoLead; let ruleName=S.rule==='60days'?'3-Year Rule - Remove 60 days before expiry':S.rule==='45days'?'2-Year Rule - Remove 45 days before expiry':S.rule==='1day'?'Daily Fresh - Remove 1 day before expiry':S.rule==='2days'?'Fresh / Bakery - Remove 2 days before expiry':S.rule==='14days'?'6-Month Rule - Remove 14 days before expiry':S.rule==='30days'?'1-Year Rule - Remove 30 days before expiry':S.rule==='custom'?('Custom - Remove '+S.customLead+' days before expiry'):('Auto - '+(life<=7?'Daily Fresh - Remove 1 day before expiry':life<=60?'Fresh / Bakery - Remove 2 days before expiry':life<=190?'6-Month Rule - Remove 14 days before expiry':life<=400?'1-Year Rule - Remove 30 days before expiry':life<=800?'2-Year Rule - Remove 45 days before expiry':'3-Year Rule - Remove 60 days before expiry')); 
+ let autoLead=life<=190?2:life<=540?14:30; let lead=S.rule==='2days'?2:S.rule==='14days'?14:S.rule==='30days'?30:S.rule==='custom'?S.customLead:autoLead; let ruleName=S.rule==='2days'?'6-Month Rule - Remove 2 days before expiry':S.rule==='14days'?'1-Year Rule - Remove 14 days (2 weeks) before expiry':S.rule==='30days'?'2-Year Rule - Remove 30 days (1 month) before expiry':S.rule==='custom'?('Custom - Remove '+S.customLead+' days before expiry'):('Auto - '+(life<=190?'6-Month Rule - Remove 2 days before expiry':life<=540?'1-Year Rule - Remove 14 days (2 weeks) before expiry':'2-Year Rule - Remove 30 days (1 month) before expiry')); 
  let rem=new Date(exp); rem.setDate(rem.getDate()-lead);
  let today=new Date(); today.setHours(0,0,0,0);
  let days=Math.round((exp-today)/86400000);
@@ -186,9 +186,9 @@ function render(){
  document.getElementById('count').textContent=items.length;
  let h=''; if(!items.length) h='<p class="small">No items saved yet - fill the form above and tap Save Item. JUMBO is pre-filled for you.</p>';
  f.forEach((i,idx)=>{let cls=i.status==='Remove Now'||i.status==='Expired'?'red':i.status==='Near Expire'?'amber':'green';
- let msg=encodeURIComponent('Expiry Alert: '+i.name+' (SKU '+i.sku+') from Supplier '+i.sup+' expires on '+i.exp+'. Please remove from shelf by '+i.rem+'. Category: '+i.cat+'.');
- let wa=i.phone?('https://wa.me/'+i.phone.replace(/[^0-9]/g,'')+'?text='+msg):'';
- h+='<div class="item">'+(i.photo?'<img src="'+i.photo+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px">':'')+'<b>'+i.name+'</b <span class="badge '+cls+'">'+i.status+'</span><div class="small">SKU: '+i.sku+' | Supplier: '+i.sup+' | WhatsApp: '+(i.phone||'-')+'<br>Category: '+i.cat+' | Qty: '+i.qty+'<br>Production: '+i.prod+' | Expiry: '+i.exp+'<br><b>Remove by: '+i.rem+'</b> | Location: '+(i.loc||'-')+' | Shelf life: '+i.life+' days | Shelf Life Rule: '+(i.rule||'Auto')+' | Lead: '+i.lead+' days | Days left: '+i.days+'</div>'+(wa?'<a href="'+wa+'" target="_blank"><button class="btn wa">Send WhatsApp Alert</button></a>':'<span class="small">Add WhatsApp number to alert</span>')+'<button class="btn" onclick="delItem('+items.indexOf(i)+')">Delete</button></div>';});
+  let msg=encodeURIComponent('Expiry Alert: '+i.name+' (SKU '+i.sku+') from Supplier '+i.sup+' expires on '+i.exp+'. Please remove from shelf by '+i.rem+'. Category: '+i.cat+'.');
+  let wa=i.phone?('https://wa.me/'+i.phone.replace(/[^0-9]/g,'')+'?text='+msg):'';
+  h+='<div class="item">'+(i.photo?'<img src="'+i.photo+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px">':'')+'<b>'+i.name+'</b <span class="badge '+cls+'">'+i.status+'</span><div class="small">SKU: '+i.sku+' | Supplier: '+i.sup+' | WhatsApp: '+(i.phone||'-')+'<br>Category: '+i.cat+' | Qty: '+i.qty+'<br>Production: '+i.prod+' | Expiry: '+i.exp+'<br><b>Remove by: '+i.rem+'</b> | Location: '+(i.loc||'-')+' | Shelf life: '+i.life+' days | Shelf Life Rule: '+(i.rule||'Auto')+' | Lead: '+i.lead+' days | Days left: '+i.days+'</div>'+(wa?'<a href="'+wa+'" target="_blank"><button class="btn wa">Send WhatsApp Alert</button></a>':'<span class="small">Add WhatsApp number to alert</span>')+'<button class="btn" onclick="delItem('+items.indexOf(i)+')">Delete</button></div>';});
  document.getElementById('list').innerHTML=h||'<p class="small">No items match these filters. Tap Clear All Filters.</p>';
 }
 function delItem(i){items.splice(i,1);localStorage.setItem('eg_items',JSON.stringify(items));render();}
@@ -255,15 +255,15 @@ function exportCSV(){
 function importBackup(e){
  let f=e.target.files[0]; if(!f) return;
  let r=new FileReader(); r.onload=function(){
- try{let d=JSON.parse(r.result); let items=d.items||d; if(!Array.isArray(items)) throw new Error('Not a backup file');
- // Merge: keep existing + add imported not already there (by name+sku+exp)
- let cur=JSON.parse(localStorage.getItem('eg_items')||'[]');
- let merged=cur.slice();
- items.forEach(it=>{if(!merged.some(m=>m.name===it.name&&m.sku===it.sku&&m.exp===it.exp)) merged.unshift(it);});
- localStorage.setItem('eg_items',JSON.stringify(merged));
- document.getElementById('backupMsg').textContent='✓ Restored! '+items.length+' items imported. Total now: '+merged.length+'. Scroll to Saved Items to see them.';
- render(); dailyCheck();
- }catch(err){document.getElementById('backupMsg').textContent='❌ Could not import: '+err.message+' - Pick the .json backup file, not the CSV.';}
+  try{let d=JSON.parse(r.result); let items=d.items||d; if(!Array.isArray(items)) throw new Error('Not a backup file');
+  // Merge: keep existing + add imported not already there (by name+sku+exp)
+  let cur=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  let merged=cur.slice();
+  items.forEach(it=>{if(!merged.some(m=>m.name===it.name&&m.sku===it.sku&&m.exp===it.exp)) merged.unshift(it);});
+  localStorage.setItem('eg_items',JSON.stringify(merged));
+  document.getElementById('backupMsg').textContent='✓ Restored! '+items.length+' items imported. Total now: '+merged.length+'. Scroll to Saved Items to see them.';
+  render(); dailyCheck();
+  }catch(err){document.getElementById('backupMsg').textContent='❌ Could not import: '+err.message+' - Pick the .json backup file, not the CSV.';}
  }; r.readAsText(f);
 }
 </script>
@@ -296,108 +296,108 @@ setTimeout(refreshPickers,800);
 
 <script>
 setInterval(function(){
- try{
-  var el=document.getElementById('ruleDisplay'); if(!el) return;
-  // S holds selected date parts in this file
-  if(!window.S || !S.pd || !S.pm || !S.py || !S.ed || !S.em || !S.ey){ el.textContent='Pick Production + Expiry dates - the rule will show here.'; return; }
-  var m={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  var p=new Date(parseInt(S.py), m[S.pm], parseInt(S.pd));
-  var e=new Date(parseInt(S.ey), m[S.em], parseInt(S.ed));
-  var life=Math.round((e-p)/86400000);
-  if(isNaN(life)||life<0){ el.textContent='Expiry must be after Production.'; return; }
-  var autoLead=life<=7?1:life<=60?2:life<=190?14:life<=400?30:life<=800?45:60; var lead=S.rule==='1day'?1:S.rule==='2days'?2:S.rule==='14days'?14:S.rule==='30days'?30:S.rule==='45days'?45:S.rule==='60days'?60:S.rule==='custom'?S.customLead:autoLead; var rule=S.rule==='2days'?'6-Month Rule':S.rule==='14days'?'1-Year Rule':S.rule==='30days'?'2-Year Rule':S.rule==='custom'?('Custom ('+S.customLead+' days)'):('Auto ('+autoLead+' days)');
-  el.textContent='Shelf life: '+life+' days -> '+rule+' -> Will remove '+lead+' days before expiry';
- }catch(err){}
+  try{
+    var el=document.getElementById('ruleDisplay'); if(!el) return;
+    // S holds selected date parts in this file
+    if(!window.S || !S.pd || !S.pm || !S.py || !S.ed || !S.em || !S.ey){ el.textContent='Pick Production + Expiry dates - the rule will show here.'; return; }
+    var m={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    var p=new Date(parseInt(S.py), m[S.pm], parseInt(S.pd));
+    var e=new Date(parseInt(S.ey), m[S.em], parseInt(S.ed));
+    var life=Math.round((e-p)/86400000);
+    if(isNaN(life)||life<0){ el.textContent='Expiry must be after Production.'; return; }
+    var autoLead=life<=190?2:life<=540?14:30; var lead=S.rule==='2days'?2:S.rule==='14days'?14:S.rule==='30days'?30:S.rule==='custom'?S.customLead:autoLead; var rule=S.rule==='2days'?'6-Month Rule':S.rule==='14days'?'1-Year Rule':S.rule==='30days'?'2-Year Rule':S.rule==='custom'?('Custom ('+S.customLead+' days)'):('Auto ('+autoLead+' days)');
+    el.textContent='Shelf life: '+life+' days  ->  '+rule+'  ->  Will remove '+lead+' days before expiry';
+  }catch(err){}
 }, 500);
 </script>
 
 <script>
 window.CUR_PHOTO='';
 function handlePhoto(e){
- var f=e.target.files && e.target.files[0]; if(!f){ document.getElementById('photoStatus').textContent='No file picked - tap again.'; return; }
- document.getElementById('photoStatus').textContent='Loading photo: '+f.name+'...';
- var r=new FileReader();
- r.onload=function(){
-  var img=new Image();
-  img.onload=function(){
-   var c=document.createElement('canvas'); var max=800,w=img.width,h=img.height;
-   if(w>max){h=h*max/w;w=max;} if(h>max){w=w*max/h;h=max;}
-   c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
-   window.CUR_PHOTO=c.toDataURL('image/jpeg',0.7);
-   var p=document.getElementById('photoPreview'); p.src=window.CUR_PHOTO; p.style.display='block';
-   document.getElementById('clearPhotoBtn').style.display='block';
-   document.getElementById('photoStatus').textContent='✓ Photo ready - now tap Save Item';
+  var f=e.target.files && e.target.files[0]; if(!f){ document.getElementById('photoStatus').textContent='No file picked - tap again.'; return; }
+  document.getElementById('photoStatus').textContent='Loading photo: '+f.name+'...';
+  var r=new FileReader();
+  r.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement('canvas'); var max=800,w=img.width,h=img.height;
+      if(w>max){h=h*max/w;w=max;} if(h>max){w=w*max/h;h=max;}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      window.CUR_PHOTO=c.toDataURL('image/jpeg',0.7);
+      var p=document.getElementById('photoPreview'); p.src=window.CUR_PHOTO; p.style.display='block';
+      document.getElementById('clearPhotoBtn').style.display='block';
+      document.getElementById('photoStatus').textContent='✓ Photo ready - now tap Save Item';
+    };
+    img.onerror=function(){document.getElementById('photoStatus').textContent='Could not read photo - try Choose From Files.';};
+    img.src=r.result;
   };
-  img.onerror=function(){document.getElementById('photoStatus').textContent='Could not read photo - try Choose From Files.';};
-  img.src=r.result;
- };
- r.onerror=function(){document.getElementById('photoStatus').textContent='Could not read file - try the other input.';};
- r.readAsDataURL(f);
+  r.onerror=function(){document.getElementById('photoStatus').textContent='Could not read file - try the other input.';};
+  r.readAsDataURL(f);
 }
 function clearPhoto(){window.CUR_PHOTO='';var p=document.getElementById('photoPreview');p.src='';p.style.display='none';document.getElementById('clearPhotoBtn').style.display='none';['photoCam','photoFile'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});document.getElementById('photoStatus').textContent='Photo removed.';}
 </script>
 
 <script>
 function toggleGallery(){
- var g=document.getElementById('photoGallery');
- var btn=document.getElementById('galleryBtn');
- if(g.style.display==='block'){ g.style.display='none'; btn.textContent='🖼️ Show All Photos'; return; }
- var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
- var withPhoto=items.filter(function(i){return i.photo;});
- if(!withPhoto.length){ g.innerHTML='<div style="color:#fff">No photos saved yet. Pick a photo, then tap Save Item - it will appear here.</div>'; }
- else{
-  var h='<div style="color:#fff;margin-bottom:8px">'+withPhoto.length+' photos saved</div>';
-  withPhoto.forEach(function(i){
-   h+='<div style="background:#222;border-radius:10px;padding:8px;margin-bottom:10px"><img src="'+i.photo+'" style="width:100%;border-radius:8px"><b style="color:#fff">'+i.name+'</b><div style="color:#ccc;font-size:13px">Expiry: '+i.exp+' | Remove by: '+i.rem+' | '+i.status+'</div></div>';
-  });
-  g.innerHTML=h;
- }
- g.style.display='block'; btn.textContent='❌ Hide All Photos';
+  var g=document.getElementById('photoGallery');
+  var btn=document.getElementById('galleryBtn');
+  if(g.style.display==='block'){ g.style.display='none'; btn.textContent='🖼️ Show All Photos'; return; }
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var withPhoto=items.filter(function(i){return i.photo;});
+  if(!withPhoto.length){ g.innerHTML='<div style="color:#fff">No photos saved yet. Pick a photo, then tap Save Item - it will appear here.</div>'; }
+  else{
+    var h='<div style="color:#fff;margin-bottom:8px">'+withPhoto.length+' photos saved</div>';
+    withPhoto.forEach(function(i){
+      h+='<div style="background:#222;border-radius:10px;padding:8px;margin-bottom:10px"><img src="'+i.photo+'" style="width:100%;border-radius:8px"><b style="color:#fff">'+i.name+'</b><div style="color:#ccc;font-size:13px">Expiry: '+i.exp+' | Remove by: '+i.rem+' | '+i.status+'</div></div>';
+    });
+    g.innerHTML=h;
+  }
+  g.style.display='block'; btn.textContent='❌ Hide All Photos';
 }
 </script>
 
 <script>
 function showReminders(daysAhead){
- var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
- var today=new Date(); today.setHours(0,0,0,0);
- var list=items.filter(function(i){
-  // Parse Remove-by like "21 November 2026" or "21 Nov 2026"
-  var d=new Date(i.rem); if(isNaN(d)) return false;
-  var diff=Math.round((d-today)/86400000);
-  return diff>=0 && diff<=daysAhead;
- });
- var el=document.getElementById('reminderList');
- if(!list.length){ el.innerHTML='<b>No items due to REMOVE in next '+daysAhead+' days.</b> All safe for now.'; return; }
- var h='<b>'+list.length+' item(s) to REMOVE in next '+daysAhead+' days (BEFORE expiry):</b>';
- list.forEach(function(i){ h+='<div style="border-top:1px solid #eee;padding:8px 0"><b>'+i.name+'</b> - Remove by: '+i.rem+' - Expires: '+i.exp+' - '+i.status+(i.photo?'<br><img src="'+i.photo+'" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:4px">':'')+'</div>'; });
- el.innerHTML=h;
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var today=new Date(); today.setHours(0,0,0,0);
+  var list=items.filter(function(i){
+    // Parse Remove-by like "21 November 2026" or "21 Nov 2026"
+    var d=new Date(i.rem); if(isNaN(d)) return false;
+    var diff=Math.round((d-today)/86400000);
+    return diff>=0 && diff<=daysAhead;
+  });
+  var el=document.getElementById('reminderList');
+  if(!list.length){ el.innerHTML='<b>No items due to REMOVE in next '+daysAhead+' days.</b> All safe for now.'; return; }
+  var h='<b>'+list.length+' item(s) to REMOVE in next '+daysAhead+' days (BEFORE expiry):</b>';
+  list.forEach(function(i){ h+='<div style="border-top:1px solid #eee;padding:8px 0"><b>'+i.name+'</b> - Remove by: '+i.rem+' - Expires: '+i.exp+' - '+i.status+(i.photo?'<br><img src="'+i.photo+'" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:4px">':'')+'</div>'; });
+  el.innerHTML=h;
 }
 </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script>
 <script>
 function genCompliance(){
- var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
- var store=document.getElementById('storeName')?.value||'Store not set';
- var off=document.getElementById('officerName')?.value||'Staff not set';
- var date=new Date().toLocaleString();
- var exp=items.filter(function(i){return i.status==='Expired';});
- var rem=items.filter(function(i){return i.status==='Remove Now';});
- var near=items.filter(function(i){return i.status==='Near Expire';});
- var safe=items.filter(function(i){return i.status==='Safe';});
- var txt='EXPIRY STORE REPORT\nStore: '+store+'\nStaff: '+off+'\nDate: '+date+'\n------------------------------\nTotal checked: '+items.length+'\nEXPIRED (on shelf - REMOVE NOW): '+exp.length+'\nREMOVE NOW (Remove-by reached): '+rem.length+'\nNEAR EXPIRE (within 30 days): '+near.length+'\nSAFE: '+safe.length+'\n------------------------------\n';
- function list(arr,title){ txt+='\n'+title+'\n'; if(!arr.length) txt+='None\n'; arr.forEach(function(i){ txt+='- '+i.name+' | SKU '+i.sku+' | Loc: '+(i.loc||'-')+' | Exp: '+i.exp+' | Remove by: '+i.rem+' | Supplier: '+i.sup+'\n'; }); }
- list(exp,'EXPIRED ITEMS:'); list(rem,'REMOVE NOW ITEMS:'); list(near,'NEAR EXPIRE ITEMS:');
- txt+='\nStaff signature: ________________\nManager signature: ________________\n';
- var el=document.getElementById('complianceOut'); el.style.display='block'; el.textContent=txt;
- window._complianceTxt=txt;
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var store=document.getElementById('storeName')?.value||'Store not set';
+  var off=document.getElementById('officerName')?.value||'Staff not set';
+  var date=new Date().toLocaleString();
+  var exp=items.filter(function(i){return i.status==='Expired';});
+  var rem=items.filter(function(i){return i.status==='Remove Now';});
+  var near=items.filter(function(i){return i.status==='Near Expire';});
+  var safe=items.filter(function(i){return i.status==='Safe';});
+  var txt='EXPIRY STORE REPORT\nStore: '+store+'\nStaff: '+off+'\nDate: '+date+'\n------------------------------\nTotal checked: '+items.length+'\nEXPIRED (on shelf - REMOVE NOW): '+exp.length+'\nREMOVE NOW (Remove-by reached): '+rem.length+'\nNEAR EXPIRE (within 30 days): '+near.length+'\nSAFE: '+safe.length+'\n------------------------------\n';
+  function list(arr,title){ txt+='\n'+title+'\n'; if(!arr.length) txt+='None\n'; arr.forEach(function(i){ txt+='- '+i.name+' | SKU '+i.sku+' | Loc: '+(i.loc||'-')+' | Exp: '+i.exp+' | Remove by: '+i.rem+' | Supplier: '+i.sup+'\n'; }); }
+  list(exp,'EXPIRED ITEMS:'); list(rem,'REMOVE NOW ITEMS:'); list(near,'NEAR EXPIRE ITEMS:');
+  txt+='\nStaff signature: ________________\nManager signature: ________________\n';
+  var el=document.getElementById('complianceOut'); el.style.display='block'; el.textContent=txt;
+  window._complianceTxt=txt;
 }
 function exportComplianceCSV(){
- if(!window._complianceTxt) genCompliance();
- var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
- var csv='Store,Staff,Date,Product,SKU,Supplier,Location,Category,Production,Expiry,Remove By,Status,Shelf Life Rule\n';
- var store=document.getElementById('storeName')?.value||''; var off=document.getElementById('officerName')?.value||''; var date=new Date().toISOString().slice(0,10);
- items.forEach(function(i){ csv+='"'+store+'","'+off+'","'+date+'","'+i.name+'","'+i.sku+'","'+i.sup+'","'+(i.loc||'')+'","'+i.cat+'","'+i.prod+'","'+i.exp+'","'+i.rem+'","'+i.status+'","'+(i.rule||'')+'"\n'; });
- var blob=new Blob([csv],{type:'text/csv'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Store-Report-'+date+'.csv'; a.click();
+  if(!window._complianceTxt) genCompliance();
+  var items=JSON.parse(localStorage.getItem('eg_items')||'[]');
+  var csv='Store,Staff,Date,Product,SKU,Supplier,Location,Category,Production,Expiry,Remove By,Status,Shelf Life Rule\n';
+  var store=document.getElementById('storeName')?.value||''; var off=document.getElementById('officerName')?.value||''; var date=new Date().toISOString().slice(0,10);
+  items.forEach(function(i){ csv+='"'+store+'","'+off+'","'+date+'","'+i.name+'","'+i.sku+'","'+i.sup+'","'+(i.loc||'')+'","'+i.cat+'","'+i.prod+'","'+i.exp+'","'+i.rem+'","'+i.status+'","'+(i.rule||'')+'"\n'; });
+  var blob=new Blob([csv],{type:'text/csv'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Store-Report-'+date+'.csv'; a.click();
 }
 </script>
 
@@ -422,19 +422,20 @@ ta:{title:'ExpiryGuard',sub:'உங்கள் கடைக்கு கால�
 yo:{title:'ExpiryGuard',sub:'Abojuto ọjọ́ ìparí fún ilé ìtajà rẹ',reuse:'Tun lo Ọjà / Olùpèsè tí a ti fipamọ́',prod:'ORÚKỌ ỌJÀ *',sup:'ORÚKỌ / NỌ́MBÀ OLÙPÈSÈ',wa:'WHATSAPP OLÙPÈSÈ',cat:'Ẹ̀KA',pd:'ỌJỌ́ ÌṢEJÁDE',ed:'ỌJỌ́ ÌPARÍ',rule:'ÒFIN ÌGBÉSÍ SHELF - Tẹ láti yan',save:'Fi Nkan pamọ́',backup:'Àfẹyinti - Fi pamọ́ títí láé',comp:'ÌRÒYÌN ILÉ ÌTAJÀ - Fún Mánájá',gal:'GALLERY AWÒRÁN - Wo gbogbo Awòrán',rem:'Rán mi létí kí ó tó parí',lp:'ÌRÒYÌN ILÉ ÌTAJÀ - ÌSỌFÚN ỌṢÌṢẸ́',photo:'AWÒRÁN ỌJÀ - Ya awòrán (àṣàyàn)'}
 };
 function setLang(l){
- localStorage.setItem('eg_lang',l);
- var t=I18N[l]||I18N.en;
- document.documentElement.lang=l; document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr';
- // Map by text search - replace headings/labels that contain known English text
- function rep(oldTxt,newTxt){ document.querySelectorAll('b,label,button,h3').forEach(function(el){ if(el.textContent.trim().indexOf(oldTxt)===0 && el.children.length===0){ el.textContent=newTxt; } }); }
- // Direct: title elements
- var h=document.querySelector('h1, h2'); if(h) h.textContent=t.title;
- // Save button
- document.querySelectorAll('button').forEach(function(b){ if(b.textContent.indexOf('Save Item')>-1) b.textContent='💾 '+t.save; if(b.textContent.indexOf('Generate Compliance')>-1) b.textContent='📋 '+t.comp; if(b.textContent.indexOf('Show All Photos')>-1 || b.textContent.indexOf('Hide All Photos')>-1) b.textContent='🖼️ '+t.gal; });
- document.querySelectorAll('label').forEach(function(lb){ var txt=lb.textContent; if(txt.indexOf('PRODUCT NAME')>-1) lb.textContent=t.prod; if(txt.indexOf('SUPPLIER NAME')>-1) lb.textContent=t.sup; if(txt.indexOf('SUPPLIER WHATSAPP')>-1) lb.textContent=t.wa; if(txt.trim()==='CATEGORY') lb.textContent=t.cat; if(txt.indexOf('PRODUCTION DATE')>-1) lb.textContent=t.pd; if(txt.indexOf('EXPIRY DATE')>-1) lb.textContent=t.ed; if(txt.indexOf('PRODUCT PHOTO')>-1) lb.textContent=t.photo; });
- document.querySelectorAll('b').forEach(function(b){ var txt=b.textContent; if(txt.indexOf('STORE REPORT')>-1 && txt.indexOf('STAFF')>-1) b.textContent='🛡️ '+t.lp; if(txt.indexOf('SHELF LIFE RULE')>-1) b.textContent='📏 '+t.rule; if(txt.indexOf('STORE REPORT')>-1) b.textContent='📋 '+t.comp; if(txt.indexOf('PHOTO GALLERY')>-1) b.textContent='🖼️ '+t.gal; if(txt.indexOf('REMIND ME BEFORE')>-1) b.textContent='⏰ '+t.rem; if(txt.indexOf('Re-use Saved')>-1) b.textContent='♻️ '+t.reuse; if(txt.indexOf('Backup')>-1 && txt.indexOf('Save Forever')>-1) b.textContent='💾 '+t.backup; });
- var sub=document.querySelector('.sub'); if(sub && sub.textContent.indexOf('Expiry monitoring')>-1) sub.textContent=t.sub;
+  localStorage.setItem('eg_lang',l);
+  var t=I18N[l]||I18N.en;
+  document.documentElement.lang=l; document.documentElement.dir=(l==='ar'||l==='ur')?'rtl':'ltr';
+  // Map by text search - replace headings/labels that contain known English text
+  function rep(oldTxt,newTxt){ document.querySelectorAll('b,label,button,h3').forEach(function(el){ if(el.textContent.trim().indexOf(oldTxt)===0 && el.children.length===0){ el.textContent=newTxt; } }); }
+  // Direct: title elements
+  var h=document.querySelector('h1, h2'); if(h) h.textContent=t.title;
+  // Save button
+  document.querySelectorAll('button').forEach(function(b){ if(b.textContent.indexOf('Save Item')>-1) b.textContent='💾 '+t.save; if(b.textContent.indexOf('Generate Compliance')>-1) b.textContent='📋 '+t.comp; if(b.textContent.indexOf('Show All Photos')>-1 || b.textContent.indexOf('Hide All Photos')>-1) b.textContent='🖼️ '+t.gal; });
+  document.querySelectorAll('label').forEach(function(lb){ var txt=lb.textContent; if(txt.indexOf('PRODUCT NAME')>-1) lb.textContent=t.prod; if(txt.indexOf('SUPPLIER NAME')>-1) lb.textContent=t.sup; if(txt.indexOf('SUPPLIER WHATSAPP')>-1) lb.textContent=t.wa; if(txt.trim()==='CATEGORY') lb.textContent=t.cat; if(txt.indexOf('PRODUCTION DATE')>-1) lb.textContent=t.pd; if(txt.indexOf('EXPIRY DATE')>-1) lb.textContent=t.ed; if(txt.indexOf('PRODUCT PHOTO')>-1) lb.textContent=t.photo; });
+  document.querySelectorAll('b').forEach(function(b){ var txt=b.textContent; if(txt.indexOf('STORE REPORT')>-1 && txt.indexOf('STAFF')>-1) b.textContent='🛡️ '+t.lp; if(txt.indexOf('SHELF LIFE RULE')>-1) b.textContent='📏 '+t.rule; if(txt.indexOf('STORE REPORT')>-1) b.textContent='📋 '+t.comp; if(txt.indexOf('PHOTO GALLERY')>-1) b.textContent='🖼️ '+t.gal; if(txt.indexOf('REMIND ME BEFORE')>-1) b.textContent='⏰ '+t.rem; if(txt.indexOf('Re-use Saved')>-1) b.textContent='♻️ '+t.reuse; if(txt.indexOf('Backup')>-1 && txt.indexOf('Save Forever')>-1) b.textContent='💾 '+t.backup; });
+  var sub=document.querySelector('.sub'); if(sub && sub.textContent.indexOf('Expiry monitoring')>-1) sub.textContent=t.sub;
 }
 setTimeout(function(){ var saved=localStorage.getItem('eg_lang')||'en'; var sel=document.getElementById('langSel'); if(sel) sel.value=saved; if(saved!=='en') setLang(saved); },500);
 </script>
+<div style="text-align:center;font-size:12px;color:#888;padding:16px">ExpiryGuard stores your items only on your device. No personal data is sent to us. <a href="privacy.html">Privacy Policy</a></div>
 </body></html>
