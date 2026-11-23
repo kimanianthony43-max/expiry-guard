@@ -1,0 +1,13 @@
+{
+  "background_color": "#0b3d2e",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "ExpiryGuard",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "ExpiryGuard",
+  "start_url": "/",
+  "theme_color": "#0b3d2e",
+  "id": "https://kimarianthony43-max.github.io/expiry-guard/",
+  "description": "Track product expiry dates, get WhatsApp reminders before expiry, with photos, supermarket standard shelf-life rules and backup. In 17 languages."
+}
